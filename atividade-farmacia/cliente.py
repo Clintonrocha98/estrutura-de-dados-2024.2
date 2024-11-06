@@ -10,7 +10,6 @@ class Cliente:
     def set_nome(self, nome):
         self.__nome = nome
 
-    """Nos métodos abaixo, substitua a palavra "pass" pelo código correspondente conforme métodos anteriores"""
     def get_cpf(self):
         return self.__cpf
     
@@ -23,6 +22,5 @@ class Cliente:
     def get_num_clientes(self):
         return self.num_clientes
     
-        """Substituir o método abaixo por __str__"""
     def __str__(self):
         return f'Nome: {self.__nome}\nCPF: {self.__cpf}'

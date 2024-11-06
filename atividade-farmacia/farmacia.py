@@ -1,10 +1,7 @@
 from cliente import Cliente
 from medicamento import Medicamento
 
-
 class Farmacia:
-    """Construtor da classe medicamento"""
-
     def __init__(self, cnpj="", nome_fant=""):
         self.__cnpj = cnpj
         self.__nome_fantasia = nome_fant
@@ -23,8 +20,12 @@ class Farmacia:
 
         cliente = Cliente(nome, cpf)
 
-        self.__clientes.append(cliente)
-
+        self.__clientes.setdefault(cliente)
+    
+    def _validar_cpf(self,cpf):
+        "VALIDAR SE JÁ EXISTE CPF CADASTRADO"
+        pass
+    
     def cadastrar_medicamento(self):
         cod = input("Código do medicamento: ")
         desc = input("Nome do medicamento: ")
@@ -47,17 +48,29 @@ class Farmacia:
         for key, value in self.__estoque:
             print(key, value)
     
-    def procurar_por_nome(self, nome):
+    def _encontrar_item_por_nome(self, nome):
+        """Método auxiliar para buscar um item no estoque pelo nome."""
         for codigo, detalhes in self.__estoque.items():
-            if detalhes['nome'].lower() == nome.lower():  
+            if detalhes['nome'].lower() == nome.lower():
                 return codigo, detalhes
         return None
-    
-    def atualizar_quantidade_em_estoque(self, nome):
-        for codigo, detalhes in self.__estoque.items():
-            if detalhes['nome'].lower() == nome.lower():  
-                detalhes['quant'] += 1
+
+    def procurar_por_nome(self, nome):
+        """Busca um item pelo nome e retorna o código e os detalhes, ou None se não encontrar."""
+        resultado = self._encontrar_item_por_nome(nome)
+        if resultado is not None:
+            codigo, detalhes = resultado
+            return codigo, detalhes
         return None
+
+    def atualizar_quantidade_em_estoque(self, nome, quantidade=1):
+        """Atualiza a quantidade em estoque subtraindo o valor especificado (padrão: 1)."""
+        resultado = self._encontrar_item_por_nome(nome)
+        if resultado is not None:
+            _, detalhes = resultado
+            detalhes['quant'] -= quantidade
+            return True  
+        return False 
     
     def menu(self):
         text_menu = """          

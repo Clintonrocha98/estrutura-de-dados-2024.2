@@ -25,12 +25,30 @@ def vender():
     nomeProduto = input("qual o remedio vc quer comprar?")
     quantidadeProduto = input("qual a quantidade?")
     temProduto = farmacinha.procurar_por_nome(nomeProduto)
-    
-    pass
 
+    if temProduto is None:
+        print("remedio não encontrado")
+        return
 
-farmacinha.cadastrar_medicamento()
+    codigo, detalhes = temProduto
 
+    if quantidadeProduto > detalhes["quant"]:
+        print(f"temos apenas {detalhes['quant']} em estoque desse remedio")
+        return
+
+    vendido = farmacinha.atualizar_quantidade_em_estoque(
+        nomeProduto, quantidade=quantidadeProduto
+    )
+
+    if vendido:
+        print(f"Produto:{detalhes["desc"]}")
+        print(f"Quantidade:{detalhes["quant"]}")
+        print(f"Total: R${detalhes["preco"]*detalhes["quant"]}")
+        print("venda completa!")
+        return
+    else:
+        print('deu algum problema na venda')
+        return
 
 # while True:
 #     farmacinha.menu()
@@ -40,8 +58,10 @@ farmacinha.cadastrar_medicamento()
 #     match opcao:
 #         case '1':
 #             cadastros()
+#             break
 #         case '2':
-#             pass
+#             vender()
+#             break
 #         case _:
 #             print("Saindo...")
 #             break
