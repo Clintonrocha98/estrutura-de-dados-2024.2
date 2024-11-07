@@ -3,25 +3,22 @@ from medicamento import *
 
 farmacinha = Farmacia("12345", "24 Horas")
 
-
 def cadastros():
+    print("oq vc quer cadastrar?")
     print("1. cliente")
     print("2. medicamento")
 
     op = input()
 
-    if op == "1":
-        farmacinha.cadastrar_cliente()
-    elif op == "2":
-        farmacinha.cadastrar_medicamento()
-
+    match op:
+        case "1":
+            farmacinha.cadastrar_cliente()
+        case "2":
+            farmacinha.cadastrar_medicamento()
+        case _:
+            print("opção invalida")
 
 def vender():
-    ##nome e quantidade que quer comprar?
-    ## verifica se o medicamento existe
-    ## verifica se existe a quantidade em estoque
-    ## atualizar a quantidade de produtos em estoque
-    ## finalizar com o total da compra
     nomeProduto = input("qual o remedio vc quer comprar?")
     quantidadeProduto = input("qual a quantidade?")
     temProduto = farmacinha.procurar_por_nome(nomeProduto)
@@ -37,7 +34,8 @@ def vender():
         return
 
     vendido = farmacinha.atualizar_quantidade_em_estoque(
-        nomeProduto, quantidade=quantidadeProduto
+        nomeProduto, 
+        quantidade=quantidadeProduto
     )
 
     if vendido:
@@ -50,18 +48,18 @@ def vender():
         print('deu algum problema na venda')
         return
 
-# while True:
-#     farmacinha.menu()
+while True:
+    farmacinha.menu()
 
-#     opcao = input()
+    opcao = input()
 
-#     match opcao:
-#         case '1':
-#             cadastros()
-#             break
-#         case '2':
-#             vender()
-#             break
-#         case _:
-#             print("Saindo...")
-#             break
+    match opcao:
+        case '1':
+            cadastros()
+        case '2':
+            vender()
+        case "4":
+            farmacinha.atualizar_preco()
+        case _:
+            print("Saindo...")
+            break

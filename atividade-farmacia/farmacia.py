@@ -3,6 +3,7 @@ from medicamento import Medicamento
 
 class Farmacia:
     def __init__(self, cnpj="", nome_fant=""):
+        "cnpj"
         self.__cnpj = cnpj
         self.__nome_fantasia = nome_fant
         self.__estoque = dict()
@@ -14,17 +15,32 @@ class Farmacia:
     def get_clientes(self):
         return self.__clientes
 
+    def get_estoque(self):
+        return self.__estoque
+
     def cadastrar_cliente(self):
         nome = input("Nome do cliente: ")
         cpf = input("Número do cpf: ")
 
+        ja_existe_cpf = self._ja_existe_cpf(cpf)
+
+        if ja_existe_cpf:
+            print("cpf já cadastrado")
+            return
+        
         cliente = Cliente(nome, cpf)
 
         self.__clientes.setdefault(cliente)
+
+        print("cliente cadastrado com sucesso!")
     
-    def _validar_cpf(self,cpf):
+    def _ja_existe_cpf(self,cpf):
         "VALIDAR SE JÁ EXISTE CPF CADASTRADO"
-        pass
+        for value in self.__clientes:
+            if value.get_cpf() == cpf:
+                return True
+            else:
+                return False
     
     def cadastrar_medicamento(self):
         cod = input("Código do medicamento: ")
@@ -32,17 +48,43 @@ class Farmacia:
         quant = int(input("Quantidade de medicamento: "))
         preco = float(input("Preço do medicamento: "))
 
+        if self._ja_existe_codigo(cod):
+            print("codigo já cadastrado")
+            return
+
         medicamento = Medicamento(cod, desc, quant,preco)
         
         self.__estoque.setdefault(cod,medicamento)
 
+    def _ja_existe_codigo(self,cod):
+        "VALIDAR SE JÁ EXISTE CODIGO CADASTRADO"
+        for value in self.__estoque:
+            if value.get_codigo() == cod:
+                return True
+            else:
+                return False
 
     def limpar_clientes(self):
         self.__clientes.clear()
 
     def relatorio_cliente(self):
-        for key, value in self.__clientes:
-            print(key, value)
+        for value in self.__clientes:
+            print(value)
+
+    def atualizar_preco(self,percentual):
+        """
+        1 - passar por todo estoque
+        2 - verificar se o codigo é impar
+        3 - verificar se o valor é menor que 25
+        4 - atualizar todos os medicamentos com o novo valor
+        """
+        for value in self.__estoque:
+            if int(value.get_codigo())%2 != 0 or value.get_preco() <= 25:
+                value.set_value(value.get_value() * (1 + percentual / 100))
+                print("novo valor")
+                print(value.get_value())
+
+        pass
 
     def relatorio_medicamento(self):
         for key, value in self.__estoque:
@@ -51,7 +93,7 @@ class Farmacia:
     def _encontrar_item_por_nome(self, nome):
         """Método auxiliar para buscar um item no estoque pelo nome."""
         for codigo, detalhes in self.__estoque.items():
-            if detalhes['nome'].lower() == nome.lower():
+            if detalhes.get_descricao().lower() == nome.lower():
                 return codigo, detalhes
         return None
 
@@ -68,8 +110,11 @@ class Farmacia:
         resultado = self._encontrar_item_por_nome(nome)
         if resultado is not None:
             _, detalhes = resultado
-            detalhes['quant'] -= quantidade
+
+            detalhes.set_quantidade(detalhes.get_quantidade - quantidade)
+
             return True  
+        
         return False 
     
     def menu(self):
