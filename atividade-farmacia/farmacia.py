@@ -1,123 +1,91 @@
 from cliente import Cliente
 from medicamento import Medicamento
+from typing import Dict, Optional
+
 
 class Farmacia:
-    def __init__(self, cnpj="", nome_fant=""):
+    def __init__(self, cnpj: str, nome_fant: str):
         "cnpj"
-        self.__cnpj = cnpj
-        self.__nome_fantasia = nome_fant
-        self.__estoque = dict()
-        self.__clientes = dict()
+        self.__cnpj: str = cnpj
+        self.__nome_fantasia: str = nome_fant
+        self.__estoque: Dict[str, Medicamento] = dict()
+        self.__clientes: Dict[str, Cliente] = dict()
 
-    def get_nome(self):
-        return self.__nome_fantasia
-
-    def get_clientes(self):
-        return self.__clientes
-
-    def get_estoque(self):
-        return self.__estoque
-
-    def cadastrar_cliente(self):
-        nome = input("Nome do cliente: ")
-        cpf = input("Número do cpf: ")
-
+    def cadastrar_cliente(self, nome: str, cpf: str) -> None:
         ja_existe_cpf = self._ja_existe_cpf(cpf)
 
         if ja_existe_cpf:
             print("cpf já cadastrado")
             return
-        
+
         cliente = Cliente(nome, cpf)
 
-        self.__clientes.setdefault(cliente)
+        self.__clientes.setdefault(cpf, cliente)
 
         print("cliente cadastrado com sucesso!")
-    
-    def _ja_existe_cpf(self,cpf):
-        "VALIDAR SE JÁ EXISTE CPF CADASTRADO"
-        for value in self.__clientes:
-            if value.get_cpf() == cpf:
+
+    def _ja_existe_cpf(self, cpf: str) -> bool:
+        "Valida se o cpf já foi cadastrado!"
+        for cliente in self.__clientes.values():
+            if cliente.get_cpf() == cpf:
                 return True
             else:
                 return False
-    
-    def cadastrar_medicamento(self):
-        cod = input("Código do medicamento: ")
-        desc = input("Nome do medicamento: ")
-        quant = int(input("Quantidade de medicamento: "))
-        preco = float(input("Preço do medicamento: "))
 
+    def cadastrar_medicamento(
+        self, cod: str, desc: str, quant: int, preco: float
+    ) -> None:
         if self._ja_existe_codigo(cod):
             print("codigo já cadastrado")
             return
 
-        medicamento = Medicamento(cod, desc, quant,preco)
-        
-        self.__estoque.setdefault(cod,medicamento)
+        medicamento = Medicamento(cod, desc, quant, preco)
 
-    def _ja_existe_codigo(self,cod):
-        "VALIDAR SE JÁ EXISTE CODIGO CADASTRADO"
-        for value in self.__estoque:
-            if value.get_codigo() == cod:
+        self.__estoque.setdefault(cod, medicamento)
+
+    def _ja_existe_codigo(self, cod: str) -> bool:
+        "valida se o codigo já foi cadastrado"
+        for medicamento in self.__estoque.values():
+            if medicamento.get_codigo() == cod:
                 return True
             else:
                 return False
 
-    def limpar_clientes(self):
+    def limpar_clientes(self) -> None:
         self.__clientes.clear()
 
-    def relatorio_cliente(self):
-        for value in self.__clientes:
-            print(value)
+    def relatorio_cliente(self) -> None:
+        for cliente in self.__clientes.values():
+            print(f"cliente: {cliente}")
 
-    def atualizar_preco(self,percentual):
-        """
-        1 - passar por todo estoque
-        2 - verificar se o codigo é impar
-        3 - verificar se o valor é menor que 25
-        4 - atualizar todos os medicamentos com o novo valor
-        """
-        for value in self.__estoque:
-            if int(value.get_codigo())%2 != 0 or value.get_preco() <= 25:
-                value.set_value(value.get_value() * (1 + percentual / 100))
-                print("novo valor")
-                print(value.get_value())
+    def atualizar_preco(self, percentual: float) -> None:
+        for medicamento in self.__estoque.values():
+            if int(medicamento.get_codigo()) % 2 != 0 or medicamento.get_preco() <= 25:
+                medicamento.set_preco(medicamento.get_preco() * (1 + percentual / 100))
+                print(f"codigo:{medicamento.get_descricao()} preço atualizado!!")
 
-        pass
+    def relatorio_medicamento(self) -> None:
+        for medicamento in self.__estoque.values():
+            print(f"medicamento:{medicamento}")
 
-    def relatorio_medicamento(self):
-        for key, value in self.__estoque:
-            print(key, value)
-    
-    def _encontrar_item_por_nome(self, nome):
-        """Método auxiliar para buscar um item no estoque pelo nome."""
-        for codigo, detalhes in self.__estoque.items():
-            if detalhes.get_descricao().lower() == nome.lower():
-                return codigo, detalhes
+    def procurar_medicamento_pelo_nome(self, nome: str) -> Optional[Medicamento]:
+        """Busca um medicamento pelo nome e retorna o código e os detalhes, ou None se não encontrar."""
+        for medicamento in self.__estoque.values():
+            if medicamento.get_descricao().lower() == nome.lower():
+                return medicamento
         return None
 
-    def procurar_por_nome(self, nome):
-        """Busca um item pelo nome e retorna o código e os detalhes, ou None se não encontrar."""
-        resultado = self._encontrar_item_por_nome(nome)
-        if resultado is not None:
-            codigo, detalhes = resultado
-            return codigo, detalhes
-        return None
-
-    def atualizar_quantidade_em_estoque(self, nome, quantidade=1):
+    def atualizar_quantidade_em_estoque(self, nome: str, quantidade=1) -> bool:
         """Atualiza a quantidade em estoque subtraindo o valor especificado (padrão: 1)."""
-        resultado = self._encontrar_item_por_nome(nome)
+        resultado = self.procurar_medicamento_pelo_nome(nome)
         if resultado is not None:
-            _, detalhes = resultado
+            resultado.set_quantidade(resultado.get_quantidade - quantidade)
 
-            detalhes.set_quantidade(detalhes.get_quantidade - quantidade)
+            return True
 
-            return True  
-        
-        return False 
-    
-    def menu(self):
+        return False
+
+    def menu(self) -> None:
         text_menu = """          
         ====================================
                 Farmácia Porto Saúde 	 
