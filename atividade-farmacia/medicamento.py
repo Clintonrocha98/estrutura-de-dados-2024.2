@@ -32,6 +32,6 @@ class Medicamento:
 
     def __str__(self):
         return (
-            f"Código: {self.__codigo}\nDescrição: {self.__descricao}\n"
+            f"Código: {self.__codigo}\nNome: {self.__descricao}\n"
             f"Quantidade: {self.__quantidade}\nPreço: {self.__preco}"
         )
